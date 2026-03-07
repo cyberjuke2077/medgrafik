@@ -6,8 +6,9 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-slate-50">
       <Navigation open={sidebarOpen} setOpen={setSidebarOpen} />
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-auto">
           <main className="p-6">

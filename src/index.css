@@ -21,27 +21,84 @@ html {
 }
 
 @layer components {
+  /* Typography helpers */
+  .page-title {
+    @apply text-3xl font-bold text-slate-900;
+  }
+
+  .page-subtitle {
+    @apply text-slate-600 mt-1;
+  }
+
+  /* Buttons — rounder */
   .btn-primary {
-    @apply px-4 py-2 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50;
+    @apply px-5 py-3 bg-primary-600 text-white rounded-[22px] font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-gray-200 text-gray-900 rounded-xl font-semibold hover:bg-gray-300 transition-colors;
+    @apply px-5 py-3 bg-slate-200 text-slate-900 rounded-[22px] font-semibold hover:bg-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-danger {
-    @apply px-4 py-2 bg-danger-500 text-white rounded-xl font-semibold hover:bg-danger-600 transition-colors;
+    @apply px-5 py-3 bg-danger-500 text-white rounded-[22px] font-semibold hover:bg-danger-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
+  /* Inputs — more pill-like */
   .input-field {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500;
+    @apply w-full px-4 py-3 border border-slate-300 rounded-[22px] bg-white/80 focus:outline-none focus:ring-2 focus:ring-primary-500;
   }
 
+  /* Cards — rounder */
   .card {
-    @apply bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow;
+    @apply bg-white rounded-[28px] shadow-sm p-6 hover:shadow-md transition-shadow;
   }
 
   .card-header {
-    @apply text-xl font-bold text-gray-900 mb-4;
+    @apply text-xl font-bold text-slate-900 mb-4;
+  }
+
+  /* Soft panel */
+  .panel-soft {
+    @apply bg-white/70 backdrop-blur rounded-[32px];
+  }
+
+  /* Status palettes (optional helpers) */
+  .bg-success-50 {
+    @apply bg-green-50;
+  }
+  .text-success-700 {
+    @apply text-green-700;
+  }
+  .text-success-800 {
+    @apply text-green-800;
+  }
+  .border-success-200 {
+    @apply border-green-200;
+  }
+
+  .bg-warning-50 {
+    @apply bg-yellow-50;
+  }
+  .text-warning-700 {
+    @apply text-yellow-700;
+  }
+  .text-warning-800 {
+    @apply text-yellow-800;
+  }
+  .border-warning-200 {
+    @apply border-yellow-200;
+  }
+
+  .bg-danger-50 {
+    @apply bg-red-50;
+  }
+  .text-danger-700 {
+    @apply text-red-700;
+  }
+  .text-danger-800 {
+    @apply text-red-800;
+  }
+  .border-danger-200 {
+    @apply border-red-200;
   }
 }

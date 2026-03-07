@@ -8,7 +8,8 @@ import "dayjs/locale/ru";
 dayjs.locale("ru");
 
 export default function AppointmentBooking() {
-  const { doctors, workSlots, appointments, bookAppointment, cancelAppointment, rescheduleAppointment } = useSchedule();
+  const { doctors, workSlots, appointments, bookAppointment, cancelAppointment, rescheduleAppointment } =
+    useSchedule();
   const { user } = useAuth();
   const { success, error, warning } = useToast();
 
@@ -39,9 +40,7 @@ export default function AppointmentBooking() {
 
         <div className="card bg-red-50 border-2 border-red-200 p-8 text-center">
           <p className="text-2xl mb-2">🔐 Доступ запрещён</p>
-          <p className="text-red-800 font-semibold">
-            Только регистратор может управлять записями пациентов
-          </p>
+          <p className="text-red-800 font-semibold">Только регистратор может управлять записями пациентов</p>
           <p className="text-gray-600 mt-4 text-sm">
             Ваша роль: <span className="font-bold capitalize">{user?.role}</span>
           </p>
@@ -50,15 +49,13 @@ export default function AppointmentBooking() {
     );
   }
 
-  const doctorSlots = workSlots.filter(
-    ws => ws.doctorId === selectedDoctor && ws.date === selectedDate
-  );
+  const doctorSlots = workSlots.filter((ws) => ws.doctorId === selectedDoctor && ws.date === selectedDate);
 
-  const availableSlots = doctorSlots.flatMap(ws => ws.slots).filter(slot => {
-    return !appointments.find(a => a.slotDateTime === slot.dateTime && a.status === "booked");
-  });
+  const availableSlots = doctorSlots
+    .flatMap((ws) => ws.slots)
+    .filter((slot) => !appointments.find((a) => a.slotDateTime === slot.dateTime && a.status === "booked"));
 
-  const userAppointments = appointments.filter(a => a.status === "booked");
+  const userAppointments = appointments.filter((a) => a.status === "booked");
 
   const handleBooking = () => {
     if (!patientCode || !patientName || !selectedSlot) {
@@ -66,16 +63,10 @@ export default function AppointmentBooking() {
       return;
     }
 
-    const result = bookAppointment(
-      selectedDoctor,
-      selectedSlot,
-      patientCode,
-      patientName,
-      user?.id
-    );
+    const result = bookAppointment(selectedDoctor, selectedSlot, patientCode, patientName, user?.id);
 
     if (result.success) {
-      success(`✅ Запись успешно создана!`);
+      success("✅ Запись успешно создана!");
       setTimeout(() => {
         setStep("select-doctor");
         setSelectedDoctor(null);
@@ -137,9 +128,7 @@ export default function AppointmentBooking() {
         <button
           onClick={() => setStep("select-doctor")}
           className={`px-4 py-3 font-medium border-b-2 transition-colors ${
-            step === "select-doctor"
-              ? "border-primary-600 text-primary-600"
-              : "border-transparent text-gray-600"
+            step === "select-doctor" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-600"
           }`}
         >
           ➕ Новая запись
@@ -147,9 +136,7 @@ export default function AppointmentBooking() {
         <button
           onClick={() => setStep("my-appointments")}
           className={`px-4 py-3 font-medium border-b-2 transition-colors ${
-            step === "my-appointments"
-              ? "border-primary-600 text-primary-600"
-              : "border-transparent text-gray-600"
+            step === "my-appointments" ? "border-primary-600 text-primary-600" : "border-transparent text-gray-600"
           }`}
         >
           📋 Все записи ({userAppointments.length})
@@ -161,7 +148,7 @@ export default function AppointmentBooking() {
         <div className="card">
           <h3 className="card-header">Выберите врача</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {doctors.map(doctor => (
+            {doctors.map((doctor) => (
               <button
                 key={doctor.id}
                 onClick={() => {
@@ -184,6 +171,7 @@ export default function AppointmentBooking() {
         <div className="space-y-4">
           <div className="card">
             <h3 className="card-header">Выберите дату и время</h3>
+
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Дата приёма</label>
               <input
@@ -220,7 +208,9 @@ export default function AppointmentBooking() {
 
           {selectedSlot && (
             <div className="card">
+              {/* FIX: корректная строка (без �) */}
               <h3 className="card-header">Данные пациента</h3>
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Код пациента</label>
@@ -232,6 +222,7 @@ export default function AppointmentBooking() {
                     className="input-field"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">ФИО пациента</label>
                   <input
@@ -245,7 +236,7 @@ export default function AppointmentBooking() {
 
                 <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
                   <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Врач:</span> {doctors.find(d => d.id === selectedDoctor)?.fio}
+                    <span className="font-semibold">Врач:</span> {doctors.find((d) => d.id === selectedDoctor)?.fio}
                   </p>
                   <p className="text-sm text-gray-700 mt-2">
                     <span className="font-semibold">Дата и время:</span> {dayjs(selectedSlot).format("DD.MM.YYYY HH:mm")}
@@ -263,10 +254,8 @@ export default function AppointmentBooking() {
                   >
                     Отменить
                   </button>
-                  <button
-                    onClick={handleBooking}
-                    className="flex-1 btn-primary"
-                  >
+
+                  <button onClick={handleBooking} className="flex-1 btn-primary">
                     Записать пациента
                   </button>
                 </div>
@@ -280,22 +269,22 @@ export default function AppointmentBooking() {
       {step === "my-appointments" && (
         <div className="card">
           <h3 className="card-header">Все записи пациентов</h3>
+
           {userAppointments.length > 0 ? (
             <div className="space-y-3">
-              {userAppointments.map(apt => {
-                const doctor = doctors.find(d => d.id === apt.doctorId);
+              {userAppointments.map((apt) => {
+                const doctor = doctors.find((d) => d.id === apt.doctorId);
                 return (
                   <div key={apt.id} className="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900">{doctor?.fio}</p>
                         <p className="text-sm text-gray-600 mt-1">{doctor?.specialty}</p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          📅 {dayjs(apt.slotDateTime).format("DD.MM.YYYY в HH:mm")}
-                        </p>
+                        <p className="text-sm text-gray-600 mt-1">📅 {dayjs(apt.slotDateTime).format("DD.MM.YYYY в HH:mm")}</p>
                         <p className="text-sm text-gray-600">👤 {apt.patientName}</p>
                         <p className="text-sm text-gray-600">Код: {apt.patientCode}</p>
                       </div>
+
                       <div className="flex gap-2 flex-col">
                         <button
                           onClick={() => {
@@ -332,13 +321,10 @@ export default function AppointmentBooking() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Отмена записи</h3>
+
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Причина отмены</label>
-              <select
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                className="input-field"
-              >
+              <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="input-field">
                 <option value="">Выберите причину</option>
                 <option value="patient_request">По просьбе пациента</option>
                 <option value="doctor_unavailable">Врач недоступен</option>
@@ -346,6 +332,7 @@ export default function AppointmentBooking() {
                 <option value="other">Другое</option>
               </select>
             </div>
+
             <div className="flex gap-3">
               <button
                 onClick={() => {
@@ -357,10 +344,7 @@ export default function AppointmentBooking() {
               >
                 Закрыть
               </button>
-              <button
-                onClick={handleCancelAppointment}
-                className="flex-1 btn-danger"
-              >
+              <button onClick={handleCancelAppointment} className="flex-1 btn-danger">
                 Отменить запись
               </button>
             </div>
@@ -373,6 +357,7 @@ export default function AppointmentBooking() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Перенести запись</h3>
+
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Новая дата</label>
@@ -393,6 +378,7 @@ export default function AppointmentBooking() {
                 />
               </div>
             </div>
+
             <div className="flex gap-3">
               <button
                 onClick={() => {
@@ -404,10 +390,7 @@ export default function AppointmentBooking() {
               >
                 Закрыть
               </button>
-              <button
-                onClick={handleRescheduleAppointment}
-                className="flex-1 btn-primary"
-              >
+              <button onClick={handleRescheduleAppointment} className="flex-1 btn-primary">
                 Перенести
               </button>
             </div>

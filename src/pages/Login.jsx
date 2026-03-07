@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState("admin");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -16,8 +17,8 @@ export default function Login() {
     setLoading(true);
 
     setTimeout(() => {
-      const success = login(email, password);
-      if (success) {
+      const ok = login(email, password);
+      if (ok) {
         navigate("/dashboard");
       } else {
         setError("Неверные учетные данные. Проверьте email и пароль.");
@@ -35,27 +36,27 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo Section */}
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary-600 rounded-2xl mb-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary-600 rounded-[28px] mb-4 shadow-lg">
             <span className="text-4xl">🏥</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">МедГрафик</h1>
-          <p className="text-gray-600 mt-2">Система управления медицинским расписанием</p>
+          <h1 className="text-3xl font-bold text-slate-900">МедГрафик</h1>
+          <p className="text-slate-600 mt-2">Система управления медицинским расписанием</p>
         </div>
 
-        {/* Login Form */}
+        {/* Form */}
         <form onSubmit={handleLogin} className="card mb-6">
-          <h2 className="text-2xl font-bold mb-6 text-gray-900">Вход в систему</h2>
+          <h2 className="text-2xl font-bold mb-6 text-slate-900">Вход в систему</h2>
 
           {error && (
-            <div className="p-4 mb-4 bg-danger-50 border border-danger-200 rounded-xl text-danger-700 text-sm">
+            <div className="p-4 mb-4 bg-danger-50 border border-danger-200 rounded-[22px] text-danger-700 text-sm">
               {error}
             </div>
           )}
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email адрес</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Email адрес</label>
             <input
               type="email"
               value={email}
@@ -67,7 +68,7 @@ export default function Login() {
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Пароль</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Пароль</label>
             <input
               type="password"
               value={password}
@@ -76,7 +77,11 @@ export default function Login() {
               className="input-field"
               required
             />
-            <a href="#" className="text-xs text-primary-600 hover:text-primary-700 mt-2 inline-block">
+
+            <a
+              href="#"
+              className="text-xs text-primary-700 hover:text-primary-800 mt-3 inline-block font-semibold"
+            >
               Забыли пароль?
             </a>
           </div>
@@ -84,7 +89,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary py-3 text-lg font-semibold flex items-center justify-center gap-2"
+            className="w-full btn-primary py-4 text-lg font-semibold flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -93,37 +98,40 @@ export default function Login() {
               </>
             ) : (
               <>
-                Войти
-                <span>→</span>
+                Войти <span>→</span>
               </>
             )}
           </button>
 
-          <p className="text-center text-sm text-gray-600 mt-4">
+          <p className="text-center text-sm text-slate-600 mt-4">
             Нет доступа?{" "}
-            <a href="#" className="text-primary-600 hover:text-primary-700 font-semibold">
+            <a href="#" className="text-primary-700 hover:text-primary-800 font-semibold">
               Обратитесь в поддержку
             </a>
           </p>
         </form>
 
-        {/* Test Credentials */}
-        <div className="card bg-gray-50 border border-gray-200">
-          <p className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">
+        {/* Test credentials */}
+        <div className="panel-soft p-5 border border-white/60">
+          <p className="text-xs font-bold text-slate-600 mb-3 uppercase tracking-wide">
             Тестовые учетные данные
           </p>
+
           <div className="space-y-2">
             {testAccounts.map((acc, idx) => (
               <button
                 key={idx}
+                type="button"
                 onClick={() => {
                   setEmail(acc.email);
                   setPassword(acc.password);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white transition-colors"
+                className="w-full text-left px-4 py-3 rounded-[22px] text-sm hover:bg-white transition-colors border border-white/50"
               >
-                <p className="font-medium text-gray-900">{acc.role}</p>
-                <p className="text-xs text-gray-600">{acc.email} / {acc.password}</p>
+                <p className="font-semibold text-slate-900">{acc.role}</p>
+                <p className="text-xs text-slate-600">
+                  {acc.email} / {acc.password}
+                </p>
               </button>
             ))}
           </div>

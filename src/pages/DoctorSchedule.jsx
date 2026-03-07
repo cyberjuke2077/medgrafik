@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSchedule } from "../context/ScheduleContext";
 import { useAuth } from "../context/AuthContext";
 import dayjs from "dayjs";
@@ -6,23 +6,36 @@ import dayjs from "dayjs";
 export default function DoctorSchedule() {
   const { doctors, workSlots, appointments } = useSchedule();
   const { user } = useAuth();
-  const [selectedDoctorId, setSelectedDoctorId] = useState(user?.role === "doctor" ? user?.doctorId : doctors[0]?.id);
+
+  // 1) Пытаемся выбрать врача из профиля (doctorId), иначе первого из списка
+  const preferredDoctorId =
+    user?.doctorId != null ? String(user.doctorId) : doctors[0]?.id != null ? String(doctors[0].id) : "";
+
+  // 2) Храним всегда строку (select возвращает string)
+  const [selectedDoctorId, setSelectedDoctorId] = useState(preferredDoctorId);
   const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [viewMode, setViewMode] = useState("day"); // day, week
 
-  const selectedDoctor = doctors.find(d => d.id === selectedDoctorId);
-  const doctorSlots = workSlots.filter(ws => ws.doctorId === selectedDoctorId && ws.date === selectedDate);
-  const doctorAppointments = appointments.filter(a => a.doctorId === selectedDoctorId);
+  const selectedDoctor = useMemo(
+    () => doctors.find((d) => String(d.id) === String(selectedDoctorId)),
+    [doctors, selectedDoctorId]
+  );
 
-  const getAppointmentStatus = (dateTime, status) => {
-    const appointment = doctorAppointments.find(a => a.slotDateTime === dateTime);
-    if (!appointment) return "available";
-    return appointment.status;
-  };
+  const doctorSlots = useMemo(
+    () =>
+      workSlots.filter(
+        (ws) => String(ws.doctorId) === String(selectedDoctorId) && ws.date === selectedDate
+      ),
+    [workSlots, selectedDoctorId, selectedDate]
+  );
 
-  const slots = doctorSlots.flatMap(ws => ws.slots);
+  const doctorAppointments = useMemo(
+    () => appointments.filter((a) => String(a.doctorId) === String(selectedDoctorId)),
+    [appointments, selectedDoctorId]
+  );
 
-  // Генерируем дни недели для режима неделю
+  const slots = doctorSlots.flatMap((ws) => ws.slots);
+
   const getWeekDays = () => {
     const days = [];
     const current = dayjs(selectedDate);
@@ -36,24 +49,22 @@ export default function DoctorSchedule() {
 
   const weekDays = getWeekDays();
 
-  // Получить все слоты на неделю
   const getWeekSlots = () => {
-    const weekSlots = {};
-    weekDays.forEach(day => {
+    const weekSlotsMap = {};
+    weekDays.forEach((day) => {
       const dateStr = day.format("YYYY-MM-DD");
       const daySlots = workSlots.filter(
-        ws => ws.doctorId === selectedDoctorId && ws.date === dateStr
+        (ws) => String(ws.doctorId) === String(selectedDoctorId) && ws.date === dateStr
       );
-      weekSlots[dateStr] = daySlots.flatMap(ws => ws.slots);
+      weekSlotsMap[dateStr] = daySlots.flatMap((ws) => ws.slots);
     });
-    return weekSlots;
+    return weekSlotsMap;
   };
 
   const weekSlots = getWeekSlots();
 
-  // Получить информацию о записи
   const getAppointmentInfo = (dateTime) => {
-    return doctorAppointments.find(a => a.slotDateTime === dateTime);
+    return doctorAppointments.find((a) => a.slotDateTime === dateTime);
   };
 
   return (
@@ -71,12 +82,12 @@ export default function DoctorSchedule() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Врач</label>
             <select
               value={selectedDoctorId}
-              onChange={(e) => setSelectedDoctorId(e.target.value)}
+              onChange={(e) => setSelectedDoctorId(String(e.target.value))}
               className="input-field"
             >
-              {doctors.map(doc => (
-                <option key={doc.id} value={doc.id}>
-                  {doc.fio} - {doc.specialty}
+              {doctors.map((doc) => (
+                <option key={doc.id} value={String(doc.id)}>
+                  {doc.fio} — {doc.specialty}
                 </option>
               ))}
             </select>
@@ -96,6 +107,7 @@ export default function DoctorSchedule() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Вид</label>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setViewMode("day")}
                 className={`flex-1 px-4 py-2 rounded-xl font-medium transition-colors ${
                   viewMode === "day"
@@ -106,6 +118,7 @@ export default function DoctorSchedule() {
                 День
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode("week")}
                 className={`flex-1 px-4 py-2 rounded-xl font-medium transition-colors ${
                   viewMode === "week"
@@ -144,7 +157,7 @@ export default function DoctorSchedule() {
       {viewMode === "day" && (
         <div className="card">
           <h3 className="card-header">Расписание на {dayjs(selectedDate).format("DD.MM.YYYY (dddd)")}</h3>
-          
+
           {slots.length > 0 ? (
             <div>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
@@ -172,15 +185,12 @@ export default function DoctorSchedule() {
                       <p className="text-xs mt-1">
                         {isBooked ? "Занято" : isCompleted ? "✓ Завершено" : isCanceled ? "Отменено" : "Свободно"}
                       </p>
-                      {appointment && (
-                        <p className="text-xs mt-1 truncate">{appointment.patientName.split(" ")[0]}</p>
-                      )}
+                      {appointment && <p className="text-xs mt-1 truncate">{appointment.patientName.split(" ")[0]}</p>}
                     </div>
                   );
                 })}
               </div>
 
-              {/* Scheduled Appointments for This Day */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <h4 className="font-bold text-gray-900 mb-3">Записанные пациенты</h4>
                 <div className="space-y-2">
@@ -219,7 +229,7 @@ export default function DoctorSchedule() {
       {viewMode === "week" && (
         <div className="card overflow-x-auto">
           <h3 className="card-header mb-4">Расписание на неделю</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-7 gap-4 min-w-full">
             {weekDays.map((day, dayIdx) => {
               const dateStr = day.format("YYYY-MM-DD");
@@ -227,17 +237,11 @@ export default function DoctorSchedule() {
 
               return (
                 <div key={dayIdx} className="border border-gray-200 rounded-xl p-4 bg-white">
-                  {/* Day Header */}
                   <div className="text-center mb-4 pb-4 border-b border-gray-200">
-                    <p className="font-bold text-gray-900">
-                      {day.format("DD")}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {day.format("ddd")}
-                    </p>
+                    <p className="font-bold text-gray-900">{day.format("DD")}</p>
+                    <p className="text-sm text-gray-600">{day.format("ddd")}</p>
                   </div>
 
-                  {/* Time Slots */}
                   {daySlots.length > 0 ? (
                     <div className="space-y-2">
                       {daySlots.map((slot, slotIdx) => {
@@ -258,9 +262,7 @@ export default function DoctorSchedule() {
                             title={appointment ? appointment.patientName : "Свободно"}
                           >
                             <p>{slot.dateTime.split(" ")[1]}</p>
-                            {appointment && (
-                              <p className="text-xs truncate">{appointment.patientName.split(" ")[0]}</p>
-                            )}
+                            {appointment && <p className="text-xs truncate">{appointment.patientName.split(" ")[0]}</p>}
                           </div>
                         );
                       })}
@@ -273,7 +275,6 @@ export default function DoctorSchedule() {
             })}
           </div>
 
-          {/* Legend */}
           <div className="mt-6 pt-6 border-t border-gray-200 flex flex-wrap gap-4">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
@@ -301,7 +302,7 @@ export default function DoctorSchedule() {
         <div className="card bg-red-50 border border-red-200">
           <p className="text-sm text-gray-600">🔴 Занято</p>
           <p className="text-3xl font-bold text-red-900 mt-2">
-            {slots.filter(slot => {
+            {slots.filter((slot) => {
               const apt = getAppointmentInfo(slot.dateTime);
               return apt && apt.status === "booked";
             }).length}
@@ -311,7 +312,7 @@ export default function DoctorSchedule() {
         <div className="card bg-green-50 border border-green-200">
           <p className="text-sm text-gray-600">✅ Свободно</p>
           <p className="text-3xl font-bold text-green-900 mt-2">
-            {slots.filter(slot => {
+            {slots.filter((slot) => {
               const apt = getAppointmentInfo(slot.dateTime);
               return !apt || apt.status !== "booked";
             }).length}
